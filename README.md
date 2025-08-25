@@ -5,6 +5,15 @@
 This Go module implements [RFC 9591 (FROST)](https://www.rfc-editor.org/rfc/rfc9591.html) for threshold signing
 with the Ed25519 ciphersuite.
 
+This was developed in part to make [FREON](https://github.com/soatok/freon) possible.
+[Learn more about FREON](https://soatok.blog/2025/08/09/improving-geographical-resilience-for-distributed-open-source-teams-with-freon/).
+
+## Security Notice
+
+> [!WARNING]
+>
+> This package has not been audited by a third party.
+
 ## Install
 
 ```terminal
