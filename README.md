@@ -1,5 +1,7 @@
 # Go Implementation of FROST (RFC 9591)
 
+[![Build Status](https://github.com/soatok/frost/actions/workflows/ci.yml/badge.svg)](https://github.com/soatok/frost/actions/workflows/ci.yml)
+
 This Go module implements [RFC 9591 (FROST)](https://www.rfc-editor.org/rfc/rfc9591.html) for threshold signing
 with the Ed25519 ciphersuite.
 
