@@ -72,6 +72,10 @@ func (s *State) Sign(commitments []*Commitment) (*SignatureShare, error) {
 	}
 
 	s.challenge = ComputeChallenge(s.Ciphersuite, s.groupCommitment, s.GroupKey.Element, s.Message)
+	if s.MySecretShare == nil {
+		// An aggregation-only state allows the coordinator to compute the signature without holding a share
+		return nil, nil
+	}
 
 	participantList := ParticipantsFromCommitmentList(s.Commitments)
 	lambda_i, err := DeriveInterpolatingValue(participantList, s.MyIdentifier)
@@ -111,6 +115,10 @@ func (s *State) Aggregate(shares []*SignatureShare) (*Signature, error) {
 		R: s.groupCommitment,
 		Z: z,
 	}, nil
+}
+
+func (s *State) SetGroupCommitment(e *Element) {
+	s.groupCommitment = e
 }
 
 // VerifySignatureShare verifies a single signature share.

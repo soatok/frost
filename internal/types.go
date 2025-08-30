@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"io"
+	"math/big"
 
 	"filippo.io/edwards25519"
 )
@@ -226,4 +227,46 @@ func (e *Element) Point() *edwards25519.Point {
 // Scalar returns the underlying edwards25519.Scalar.
 func (s *Scalar) Scalar() *edwards25519.Scalar {
 	return s.s
+}
+
+func (s *Signature) Bytes() []byte {
+	return append(s.R.Bytes(), s.Z.Bytes()...)
+}
+
+func NewElementFromPoint(p *edwards25519.Point) *Element {
+	return &Element{e: p}
+}
+
+func (e *Element) ToEd25519() *edwards25519.Point {
+	return e.e
+}
+
+func (s *Scalar) ToEd25519() *edwards25519.Scalar {
+	return s.s
+}
+
+// Convert a big int to a Scalar object. This implicitly reduces mod L.
+func NewScalarFromBigInt(i *big.Int) (*Scalar, error) {
+	b := i.Bytes()
+	// Reverse bytes because SetCanonicalBytes expects little-endian.
+	for i, j := 0, len(b)-1; i < j; i, j = i+1, j-1 {
+		b[i], b[j] = b[j], b[i]
+	}
+	padded := make([]byte, 32)
+	copy(padded, b)
+	s, err := edwards25519.NewScalar().SetCanonicalBytes(padded)
+	if err != nil {
+		return nil, err
+	}
+	return &Scalar{s: s}, nil
+}
+
+// Remember that math/big is not constant-time:
+func (s *Scalar) BigInt() *big.Int {
+	b := s.s.Bytes()
+	// Reverse bytes because big.Int expects big-endian.
+	for i, j := 0, len(b)-1; i < j; i, j = i+1, j-1 {
+		b[i], b[j] = b[j], b[i]
+	}
+	return new(big.Int).SetBytes(b)
 }

@@ -3,6 +3,7 @@ package internal
 
 import (
 	"crypto/sha512"
+	"math/big"
 
 	"filippo.io/edwards25519"
 )
@@ -28,6 +29,7 @@ type Ciphersuite interface {
 	H3([]byte) *Scalar
 	H4([]byte) []byte
 	H5([]byte) []byte
+	Order() *big.Int
 }
 
 // Ed25519Sha512 is the ciphersuite for FROST using Ed25519 and SHA-512.
@@ -89,4 +91,11 @@ func (c *Ed25519Sha512) hashToScalar(m []byte) *Scalar {
 		panic(err)
 	}
 	return &Scalar{s: s}
+}
+
+func (c *Ed25519Sha512) Order() *big.Int {
+	// The order is 2^252 + 27742317777372353535851937790883648493
+	order := new(big.Int)
+	order.SetString("7237005577332262213973186563042994240857116359379907606001950938285454250989", 10)
+	return order
 }
