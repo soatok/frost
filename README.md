@@ -24,12 +24,38 @@ go install github.com/soatok/frost@latest
 
 ### Key Generation
 
-This package currently does **NOT** implement key generation.
+#### Trusted Dealer
 
-In the future, we will implement two key generation strategies in submodules:
+```go
+import (
+	"github.com/soatok/trusteddealer"
+	"github.com/soatok/frost"
+)
 
-1. Honest Dealer (simpler, but requires a trusted party)
-2. An Ed25519 variant of ChillDKG
+func main() {
+	// We are using the default ciphersuite:
+	c := frost.DefaultCiphersuite()
+	dealer := trusteddealer.NewTrustedDealer(c)
+
+	// This is a 3-of-4 threshold:
+	participants := uint32(4)
+	threshold := uint32(3)
+	keygen, err := td.Keygen(participants, threshold)
+
+	// Group public key:
+	publicKey := keygen.GroupPublicKey.Bytes()
+
+	// Commitments:
+	commitments := keygen.Commitments()
+
+	// Send shares to each party:
+	for i := range keygen.Count() {
+		id := keygen.Participants[i].Identifier.Bytes()
+		secret := keygen.ParticipantPrivateKeys[i].Bytes()
+		// Send {id, secret, publicKey, commitments} to party {i}
+	}
+}
+```
 
 ### Signing
 

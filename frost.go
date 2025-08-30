@@ -88,7 +88,11 @@ func SecretShareFromBytes(id, sec []byte) (*SecretShare, error) {
 
 // Initialize a new FROST State
 func NewState(c Ciphersuite, participants []*Participant, groupKey *GroupKey, msg []byte, mySecretShare *SecretShare) *State {
-	return internal.NewState(c, participants, groupKey, msg, mySecretShare.Identifier, mySecretShare)
+	var myIdentifier *Scalar
+	if mySecretShare != nil {
+		myIdentifier = mySecretShare.Identifier
+	}
+	return internal.NewState(c, participants, groupKey, msg, myIdentifier, mySecretShare)
 }
 
 // Deserialize commitments from JSON
@@ -114,4 +118,14 @@ func NewElement() *Element {
 // derives the interpolating value for a participant
 func DeriveInterpolatingValueTestingOnly(L []*Scalar, xi *Scalar) (*Scalar, error) {
 	return internal.DeriveInterpolatingValue(L, xi)
+}
+
+// ComputeBindingFactors computes the binding factors for a signing ceremony.
+func ComputeBindingFactors(c Ciphersuite, groupPublicKey *GroupKey, commitments []*Commitment, msg []byte) []*internal.BindingFactor {
+	return internal.ComputeBindingFactors(c, groupPublicKey.Element, commitments, msg)
+}
+
+// ComputeGroupCommitment computes the group commitment for a signing ceremony.
+func ComputeGroupCommitment(commitments []*Commitment, bindingFactors []*internal.BindingFactor) (*Element, error) {
+	return internal.ComputeGroupCommitment(commitments, bindingFactors)
 }
